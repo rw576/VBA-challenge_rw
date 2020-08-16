@@ -1,0 +1,90 @@
+Sub stock()
+
+Dim i As Long
+
+For i = 1 To 6000
+    Application.StatusBar = i
+    DoEvents
+        If i Mod 1000 = 0 Then
+            DoEvents
+        End If
+        
+Next i
+
+'Loop through all sheets
+For Each ws In Worksheets
+
+'Set values
+Dim ticker_symbol As String
+Dim tot_stock_volume As Double
+tot_stock_volume = 0
+Dim lastrow As Long
+Dim open_year As Boolean
+oyear_date = True
+Dim oyear_price, eyear_price, yearly_change As Double
+Dim percent_change As Double
+Dim summary_trow As Integer
+summary_trow = 2
+
+'selecting locations on worksheets to put data
+Range("J1").Value = "Ticker"
+Range("K1").Value = "Yearly Change"
+Range("L1").Value = "Percent Change"
+Range("M1").Value = "Total Stock Volume"
+Range("O2").Value = "Greatest % Increase"
+Range("O3").Value = "Greatest % Decrease"
+Range("O4").Value = "Greatest Total Volume"
+Range("P1").Value = "Ticker"
+Range("Q1").Value = "Value"
+Range("K:M").EntireColumn.AutoFit
+Range("O:O").EntireColumn.AutoFit
+
+'counts number of rows in each sheet
+lastrow = Cells(Rows.Count, "A").End(xlUp).Row
+
+'Loop through ticker, total stock volume, yearly change in stock, percent change
+For i = 2 To lastrow
+
+If Cells(i + 1, 1).Value <> Cells(i, 1).Value Then
+    ticker_symbol = Cells(i, 1).Value
+    tot_stock_volume = tot_stock_volume + Cells(i, 7).Value
+    Range("J" & summary_trow).Value = ticker_symbol
+    Range("M" & summary_trow).Value = tot_stock_volume
+    eyear_price = Cells(i, 6).Value
+    yearly_change = eyear_price - oyear_price
+    Range("K" & summary_trow).Value = yearly_change
+    percent_change = (yearly_change / oyear_price) * 100
+    Range("L" & summary_trow).Value = percent_change
+    Range("L" & summary_trow).NumberFormat = "0.00%"
+    
+'Conditional formatting: green+ and red=
+If Range("K" & summary_trow).Value > 0 Then
+    Range("K" & summary_trow).Interior.ColorIndex = 4
+Else
+    Range("K" & summary_trow).Interior.ColorIndex = 3
+End If
+
+'Moving ticker summary to new table
+summary_trow = summary_trow + 1
+tot_stock_volume = 0
+oyear_date = True
+Else
+tot_stock_volume = tot_stock_volume + Cells(i, 7).Value
+If oyear_date And Cells(i, 3).Value <> 0 Then
+    oyear_price = Cells(i, 3).Value
+    oyear_date = False
+    
+    End If
+    
+End If
+
+Next i
+
+
+Next ws
+
+
+
+End Sub
+
+
